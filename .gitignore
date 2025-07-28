@@ -1,0 +1,19 @@
+
+# Ignorar archivo de variables de entorno
+.env
+
+# Ignorar archivos de caché de Python
+__pycache__/
+*.py[cod]
+
+# Ignorar archivos de modelos y datos
+*.h5
+*.pkl
+*.pickle
+
+# Ignorar archivos temporales del sistema
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db

@@ -7,11 +7,14 @@ from deep_translator import GoogleTranslator
 import google.generativeai as genai
 import os
 import requests
+from dotenv import load_dotenv
+load_dotenv()
+
 
 app = Flask(__name__, static_folder="static")
 
-GEMINI_API_KEY = ""
-GEMINI_URL = ""
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_URL = os.getenv("GEMINI_URL")
 
 # Cargar tokenizadores
 inp_tokenizer = joblib.load(open("inp_tokenizer.pickle", "rb"))
