@@ -1,2 +1,9 @@
 build:
   pythonVersion: 3.11
+services:
+  - type: web
+    name: amicus
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
