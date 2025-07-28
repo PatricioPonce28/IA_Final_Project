@@ -6,7 +6,6 @@ blinker==1.9.0
 bokeh==3.6.2
 certifi==2025.6.15
 cffi==1.17.1
-chardet==3.0.4
 charset-normalizer==3.4.2
 click==8.1.8
 colorama==0.4.6
@@ -32,7 +31,7 @@ flask==3.1.1
 frozenlist==1.4.1
 gitdb==4.0.11
 GitPython==3.1.43
-gradio>=4.31.0,<4.32.0
+gradio==4.31.7
 greenlet==3.0.3
 gunicorn==22.0.0
 h11==0.14.0
@@ -64,8 +63,7 @@ plotly==6.2.0
 pycparser==2.22
 pydeck==0.8.1b0
 pygments==2.18.0
-pymupdf==1.23.26
-pymupdfb==1.23.18
+pymupdf==1.22.5
 python-dateutil==2.9.0.post0
 pytz==2024.1
 PyYAML==6.0.2
