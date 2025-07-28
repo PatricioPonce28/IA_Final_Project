@@ -9,11 +9,6 @@ AmicusIA es una inteligencia artificial diseñada como amigo virtual que proporc
 📊 Métricas en Tiempo Real: Visualización del rendimiento del modelo
 
 🏗️ Arquitectura del Sistema
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Frontend      │◄──►│   API REST       │◄──►│   Modelos IA    │
-│   (Web/Mobile)  │    │   (Flask/FastAPI)│    │   - Emocional   │
-└─────────────────┘    └──────────────────┘    │   - Conversacional│
-                                               └─────────────────┘
 Componentes:
 
 Modelo de Clasificación Emocional: Regresión Logística con vectorización TF-IDF
@@ -132,6 +127,7 @@ ProyectoIA/
 ├── 📄 app.py                   # Aplicación principal
 ├── 📄 README.md               # Este archivo
 └── 📄 LICENSE                 # Licencia del proyecto
+
 🧪 Pruebas
 Ejecutar Pruebas Unitarias
 bashpython -m pytest tests/
