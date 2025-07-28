@@ -4,3 +4,4 @@ deep-translator
 python-dotenv
 google-generativeai
 requests
+gunicorn
