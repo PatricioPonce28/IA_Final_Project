@@ -4,8 +4,14 @@ from tensorflow.keras.models import Model
 import joblib
 from flask import Flask, request, jsonify, render_template
 from deep_translator import GoogleTranslator
+import google.generativeai as genai
+import os
+import requests
 
 app = Flask(__name__, static_folder="static")
+
+GEMINI_API_KEY = ""
+GEMINI_URL = ""
 
 # Cargar tokenizadores
 inp_tokenizer = joblib.load(open("inp_tokenizer.pickle", "rb"))
@@ -23,7 +29,6 @@ config = {
 }
 
 # Definición de Encoder, Attention, Decoder...
-
 class Encoder(Model):
     def __init__(self, vocab_size, embedding_dim, enc_units, batch_sz):
         super(Encoder, self).__init__()
@@ -102,25 +107,21 @@ def index():
 def chatbot():
     data = request.json
     mensaje = data.get("mensaje", "")
-    emocion = data.get("emocion", "")
 
-    # 2. Combinar emoción con mensaje
-    mensaje_emocional = f"Emoción: {emocion}. Mensaje: {mensaje}"
-
-    # 3. Tokenización
-    seq = inp_tokenizer.texts_to_sequences([mensaje_emocional])
+    # 1. Limpiar y tokenizar el mensaje (usa tu función clean_text)
+    mensaje_limpio = clean_text(mensaje)
+    seq = inp_tokenizer.texts_to_sequences([mensaje_limpio])
     padded = tf.keras.preprocessing.sequence.pad_sequences(seq, maxlen=config["max_length_inp"], padding='post')
 
-    # 4. Generar respuesta
-    hidden = modelo_chatbot.encoder.initialize_hidden_state()
-    enc_output, enc_hidden = modelo_chatbot.encoder(padded, hidden)
-
+    # 2. Generar respuesta
+    hidden = encoder.initialize_hidden_state()
+    enc_output, enc_hidden = encoder(padded, hidden)
     dec_hidden = enc_hidden
     dec_input = tf.expand_dims([targ_tokenizer.word_index['<sos>']], 0)
 
     resultado = ""
-    for t in range(config["max_length_targ"]):
-        predictions, dec_hidden, _ = modelo_chatbot.decoder(dec_input, dec_hidden, enc_output)
+    for _ in range(config["max_length_targ"]):
+        predictions, dec_hidden, _ = decoder(dec_input, dec_hidden, enc_output)
         predicted_id = tf.argmax(predictions[0]).numpy()
         palabra = targ_tokenizer.index_word.get(predicted_id, '')
         if palabra == '<eos>':
@@ -129,7 +130,7 @@ def chatbot():
         dec_input = tf.expand_dims([predicted_id], 0)
 
     return jsonify({
-        "respuesta": resultado.strip()
+        "respuesta": resultado.strip()  # Respuesta en inglés (o idioma original)
     })
 
 
@@ -149,6 +150,62 @@ def traducir():
     traduccion = GoogleTranslator(source="auto", target=idioma).translate(texto)
     return jsonify({"traduccion": traduccion})
 
+@app.route("/api/botchat", methods=["POST"])
+def botchat():
+    try:
+        data = request.get_json()
+        mensaje = data.get("mensaje", "").strip()
+        emocion = data.get("emocion", "neutral")
+
+        if not mensaje:
+            return jsonify({"error": "Mensaje vacío"}), 400
+
+        headers = {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': GEMINI_API_KEY
+        }
+
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": f"""Responde como un amigo humano del siglo XXI. Usa lenguaje natural, cálido y directo. Sé breve (máximo 30 palabras). 
+                            No valides emociones ni uses expresiones como “eso duele” o “te entiendo”.
+                            No uses emojis ni jerga informal. Comienza con minúscula, evita el uso excesivo de comas y puntos,
+                            Dame solo una opción, en base al mensaje, no uses ninguna expresión si es posible no expreses emociones solo responde
+
+                              Sé claro y sencillo. Mensaje: "{mensaje}"""
+                        }
+                    ]
+                }
+            ]
+        }
+
+        response = requests.post(
+            f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+            headers=headers,
+            json=payload
+        )
+
+        if response.status_code != 200:
+            error_msg = response.json().get('error', {}).get('message', 'Error desconocido')
+            raise ValueError(f"Error de API: {error_msg}")
+
+        respuesta = response.json()['candidates'][0]['content']['parts'][0]['text']
+        
+        return jsonify({
+            "respuesta": respuesta,
+            "status": "success"
+        })
+
+    except Exception as e:
+        print(f"Error en backend: {str(e)}")
+        return jsonify({
+            "error": str(e),
+            "status": "error"
+        }), 500
+    
 # Iniciar servidor
 if __name__ == "__main__":
     app.run(debug=True)
