@@ -100,33 +100,6 @@ response = requests.post('http://localhost:5000/chat',
                         json={'message': 'Hola, ¿cómo estás?'})
 print(response.json())
 # Output: {'response': 'Hola! Estoy bien, gracias por preguntar. ¿Cómo te sientes hoy?', 'emotion': 'neutral'}
-📁 Estructura del Proyecto
-ProyectoIA/
-├── 📁 src/                     # Código fuente
-│   ├── 📄 train_emotion_model.py
-│   ├── 📄 train_conversational_model.py
-│   ├── 📄 api.py
-│   └── 📄 utils.py
-├── 📁 models/                  # Modelos entrenados
-│   ├── 📄 emotion_model.pkl
-│   ├── 📄 vectorizer.pkl
-│   └── 📄 conversational_model.h5
-├── 📁 data/                    # Datasets
-│   ├── 📄 Emotions69k.csv
-│   └── 📄 dialogs.txt
-├── 📁 frontend/                # Interfaz de usuario
-│   ├── 📄 index.html
-│   ├── 📄 style.css
-│   └── 📄 script.js
-├── 📁 notebooks/               # Jupyter notebooks
-│   ├── 📄 exploratory_analysis.ipynb
-│   └── 📄 model_training.ipynb
-├── 📁 tests/                   # Pruebas unitarias
-├── 📁 docs/                    # Documentación
-├── 📄 requirements.txt         # Dependencias
-├── 📄 app.py                   # Aplicación principal
-├── 📄 README.md               # Este archivo
-└── 📄 LICENSE                 # Licencia del proyecto
 
 🧪 Pruebas
 Ejecutar Pruebas Unitarias
