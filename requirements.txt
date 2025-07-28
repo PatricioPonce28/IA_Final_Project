@@ -6,3 +6,4 @@ google-generativeai
 requests
 gunicorn
 tensorflow==2.18.1
+gradio
