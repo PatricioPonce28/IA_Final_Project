@@ -1,3 +1,4 @@
+Link Canva. - https://www.canva.com/design/DAGubaYCKw4/fnSk9bMKb0ewrnEd_JIIjw/edit?utm_content=DAGubaYCKw4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton 
 📖 Descripción
 AmicusIA es una inteligencia artificial diseñada como amigo virtual que proporciona acompañamiento emocional a través del reconocimiento de sentimientos en mensajes de texto. Utilizando técnicas de procesamiento de lenguaje natural (NLP) y aprendizaje automático, el sistema identifica el estado emocional del usuario y genera respuestas empáticas personalizadas.
 ✨ Características Principales
