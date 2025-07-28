@@ -4,8 +4,9 @@
     <meta charset="UTF-8" />
     <title>AmicusIA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    
 </head>
 <body>
     <div class="container">
@@ -25,16 +26,18 @@ async function enviarMensaje() {
     const button = document.querySelector("button");
     
     try {
+        // Validación básica
         if (!mensajeInput.value.trim()) {
             respuestaOutput.innerText = "Por favor escribe un mensaje";
             return;
         }
 
+        // Estado de carga
         button.disabled = true;
         respuestaOutput.innerText = "Pensando...";
 
-        // EMOCIÓN
-        const emocionRes = await fetch('https://ia-final-project.onrender.com/api/emocion', {
+        // 1. Detectar emoción
+        const emocionRes = await fetch('/api/emocion', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ mensaje: mensajeInput.value })
@@ -45,8 +48,7 @@ async function enviarMensaje() {
         }
         const emocionData = await emocionRes.json();
 
-        // CHATBOT
-        const botchatRes = await fetch('https://ia-final-project.onrender.com/api/botchat', {
+        const botchatRes = await fetch('/api/botchat', {  
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
