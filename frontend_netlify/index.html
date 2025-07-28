@@ -33,7 +33,8 @@ async function enviarMensaje() {
         button.disabled = true;
         respuestaOutput.innerText = "Pensando...";
 
-        const emocionRes = await fetch('https://TUBACKEND.com/api/emocion', {
+        // EMOCIÓN
+        const emocionRes = await fetch('https://ia-final-project.onrender.com/api/emocion', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ mensaje: mensajeInput.value })
@@ -44,7 +45,8 @@ async function enviarMensaje() {
         }
         const emocionData = await emocionRes.json();
 
-        const botchatRes = await fetch('https://TUBACKEND.com/api/botchat', {
+        // CHATBOT
+        const botchatRes = await fetch('https://ia-final-project.onrender.com/api/botchat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
