@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>AmicusIA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+    <div class="container">
+    <h2>AmicusIA 💬<br><span>Tu amigo emocional</span></h2>
+    <textarea id="mensaje" rows="5" placeholder="Cuéntame cómo te sientes..."></textarea>
+    <button onclick="enviarMensaje()">Enviar</button>
+    <div id="respuesta-box">
+        <strong>Respuesta:</strong>
+        <p id="respuesta"></p>
+        </div>
+    </div>
+
+    <script>
+        async function enviarMensaje() {
+        const mensaje = document.getElementById("mensaje").value;
+
+        const emocionRes = await fetch('/api/emocion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mensaje })
+        });
+        const emocionData = await emocionRes.json();
+
+        const chatbotRes = await fetch('/api/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mensaje, emocion: emocionData.emocion })
+        });
+        const chatbotData = await chatbotRes.json();
+
+        const traduccionRes = await fetch('/api/traducir', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texto: chatbotData.respuesta, idioma: 'es' })
+        });
+        const traduccionData = await traduccionRes.json();
+
+        document.getElementById("respuesta").innerText = traduccionData.traduccion;
+        }
+    </script>
+</body>
+</html>
