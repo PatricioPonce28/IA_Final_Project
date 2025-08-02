@@ -1,1 +1,0 @@
-{"vocab_inp_size": 2299, "vocab_tar_size": 2357, "embedding_dim": 256, "units": 1024, "max_length_inp": 22, "max_length_targ": 22, "BATCH_SIZE": 64}

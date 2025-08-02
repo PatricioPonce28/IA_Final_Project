@@ -1,160 +1,270 @@
-import tensorflow as tf
-from tensorflow.keras.layers import Embedding, GRU, Dense
-from tensorflow.keras.models import Model
+from flask import Flask, request, jsonify
+from flask import Flask, render_template, send_from_directory
+from flask_cors import CORS
 import joblib
-from flask import Flask, request, jsonify, render_template
-from deep_translator import GoogleTranslator
-import google.generativeai as genai
-import os
-import requests
-from dotenv import load_dotenv
-load_dotenv()
+import pandas as pd
+import numpy as np
+from datetime import datetime
+import logging
+from googletrans import Translator
 
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-app = Flask(__name__, static_folder="static")
+app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
+# Inicializar traductor
+translator = Translator()
 
+# Cargar modelo y vectorizador al iniciar la aplicación
+try:
+    modelo_emocion = joblib.load("modelo_emocional.pkl")
+    vectorizer = joblib.load("vectorizador_emocional.pkl")
+    logger.info("Modelo y vectorizador cargados exitosamente")
+except Exception as e:
+    logger.error(f"Error cargando modelo: {e}")
+    modelo_emocion = None
+    vectorizer = None
 
-# Cargar tokenizadores
-inp_tokenizer = joblib.load(open("inp_tokenizer.pickle", "rb"))
-targ_tokenizer = joblib.load(open("targ_tokenizer.pickle", "rb"))
-
-# Configuración
-config = {
-    "vocab_inp_size": len(inp_tokenizer.word_index) + 1,
-    "vocab_tar_size": len(targ_tokenizer.word_index) + 1,
-    "embedding_dim": 256,
-    "units": 512,
-    "BATCH_SIZE": 1,
-    "max_length_inp": 20,
-    "max_length_targ": 20
+# Diccionario para traducir emociones al español
+EMOTION_TRANSLATIONS = {
+    'angry': 'enojado',
+    'annoyed': 'molesto',
+    'anticipating': 'expectante',
+    'anxious': 'ansioso',
+    'apprehensive': 'aprensivo',
+    'ashamed': 'avergonzado',
+    'caring': 'cariñoso',
+    'confident': 'confiado',
+    'content': 'contento',
+    'devastated': 'devastado',
+    'disappointed': 'decepcionado',
+    'disgusted': 'disgustado',
+    'embarrassed': 'avergonzado',
+    'excited': 'emocionado',
+    'faithful': 'fiel',
+    'furious': 'furioso',
+    'grateful': 'agradecido',
+    'guilty': 'culpable',
+    'hopeful': 'esperanzado',
+    'impressed': 'impresionado',
+    'jealous': 'celoso',
+    'joyful': 'alegre',
+    'lonely': 'solitario',
+    'nostalgic': 'nostálgico',
+    'prepared': 'preparado',
+    'proud': 'orgulloso',
+    'sad': 'triste',
+    'sentimental': 'sentimental',
+    'surprised': 'sorprendido',
+    'terrified': 'aterrorizado',
+    'trusting': 'confiado'
 }
 
-# Definición de Encoder, Attention, Decoder...
-class Encoder(Model):
-    def __init__(self, vocab_size, embedding_dim, enc_units, batch_sz):
-        super(Encoder, self).__init__()
-        self.batch_sz = batch_sz
-        self.enc_units = enc_units
-        self.embedding = Embedding(vocab_size, embedding_dim)
-        self.gru = GRU(enc_units, return_sequences=True, return_state=True, recurrent_initializer='glorot_uniform')
 
-    def call(self, x, hidden):
-        x = self.embedding(x)
-        output, state = self.gru(x, initial_state=hidden)
-        return output, state
+def detect_language_and_translate(text):
+    """
+    Detecta el idioma y traduce al inglés si es necesario
+    """
+    try:
+        # Detectar idioma
+        detection = translator.detect(text)
+        detected_lang = detection.lang
+        
+        logger.info(f"Idioma detectado: {detected_lang}")
+        
+        # Si no es inglés, traducir
+        if detected_lang != 'en':
+            translated = translator.translate(text, src=detected_lang, dest='en')
+            english_text = translated.text
+            logger.info(f"Texto original: {text}")
+            logger.info(f"Texto traducido: {english_text}")
+            return english_text, detected_lang
+        else:
+            return text, 'en'
+            
+    except Exception as e:
+        logger.error(f"Error en traducción: {e}")
+        # Si falla la traducción, asumir que está en inglés
+        return text, 'en'
 
-    def initialize_hidden_state(self):
-        return tf.zeros((self.batch_sz, self.enc_units))
+@app.route('/')
+def home():
+    return render_template('index.html')
 
-class BahdanauAttention(tf.keras.layers.Layer):
-    def __init__(self, units):
-        super(BahdanauAttention, self).__init__()
-        self.W1 = Dense(units)
-        self.W2 = Dense(units)
-        self.V = Dense(1)
+# Ruta para archivos estáticos (CSS/JS)
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
 
-    def call(self, query, values):
-        query_with_time_axis = tf.expand_dims(query, 1)
-        score = self.V(tf.nn.tanh(self.W1(query_with_time_axis) + self.W2(values)))
-        attention_weights = tf.nn.softmax(score, axis=1)
-        context_vector = attention_weights * values
-        context_vector = tf.reduce_sum(context_vector, axis=1)
-        return context_vector, attention_weights
+@app.route('/detect-emotion', methods=['POST'])
+def detect_emotion():
+    try:
+        if modelo_emocion is None or vectorizer is None:
+            return jsonify({"error": "Modelo no disponible"}), 500
 
-class Decoder(Model):
-    def __init__(self, vocab_size, embedding_dim, dec_units, batch_sz):
-        super(Decoder, self).__init__()
-        self.batch_sz = batch_sz
-        self.dec_units = dec_units
-        self.embedding = Embedding(vocab_size, embedding_dim)
-        self.gru = GRU(dec_units, return_sequences=True, return_state=True, recurrent_initializer='glorot_uniform')
-        self.fc = Dense(vocab_size)
-        self.attention = BahdanauAttention(dec_units)
+        data = request.get_json()
+        if not data or 'text' not in data:
+            return jsonify({"error": "Se requiere el campo 'text'"}), 400
 
-    def call(self, x, hidden, enc_output):
-        context_vector, attention_weights = self.attention(hidden, enc_output)
-        x = self.embedding(x)
-        x = tf.concat([tf.expand_dims(context_vector, 1), x], axis=-1)
-        output, state = self.gru(x)
-        output = tf.reshape(output, (-1, output.shape[2]))
-        x = self.fc(output)
-        return x, state, attention_weights
+        text = data['text'].strip()
+        if not text:
+            return jsonify({"error": "El texto no puede estar vacío"}), 400
 
-# Cargar el modelo
-encoder = Encoder(config["vocab_inp_size"], config["embedding_dim"], config["units"], config["BATCH_SIZE"])
-decoder = Decoder(config["vocab_tar_size"], config["embedding_dim"], config["units"], config["BATCH_SIZE"])
-encoder.build(input_shape=(config["BATCH_SIZE"], config["max_length_inp"]))
-decoder.build(input_shape=[(config["BATCH_SIZE"], 1), (config["BATCH_SIZE"], config["units"]), (config["BATCH_SIZE"], config["max_length_inp"], config["units"])])
-encoder.load_weights("chatbot_encoder.weights.h5")
-decoder.load_weights("chatbot_decoder.weights.h5")
+        # Procesamiento directo (sin traducción)
+        text_vectorized = vectorizer.transform([text])
+        emotion_pred = modelo_emocion.predict(text_vectorized)[0]
+        probabilities = modelo_emocion.predict_proba(text_vectorized)[0]
+        confidence = float(np.max(probabilities))
 
-class ChatbotModel:
-    def __init__(self, encoder, decoder):
-        self.encoder = encoder
-        self.decoder = decoder
+        return jsonify({
+            "emotion": emotion_pred,  # Devuelve la emoción en inglés directamente
+            "confidence": round(confidence, 3)
+        })
 
-modelo_chatbot = ChatbotModel(encoder, decoder)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-# Cargar modelo de emociones
-modelo_emociones = joblib.load("modelo_emocional.pkl")
-vectorizer = joblib.load("vectorizador_emocional.pkl")
+@app.route('/test-model', methods=['GET'])
+def test_model():
+    """
+    Endpoint para probar el modelo con ejemplos
+    """
+    try:
+        if modelo_emocion is None or vectorizer is None:
+            return jsonify({"error": "Modelo no disponible"}), 500
+        
+        # Ejemplos de prueba
+        test_cases = [
+            "I feel sad and tired",
+            "I am very happy today",
+            "This makes me angry",
+            "I love this so much"
+        ]
+        
+        results = []
+        for text in test_cases:
+            vectorized = vectorizer.transform([text])
+            pred = modelo_emocion.predict(vectorized)[0]
+            prob = modelo_emocion.predict_proba(vectorized)[0]
+            confidence = float(np.max(prob))
+            
+            results.append({
+                "input": text,
+                "emotion_english": pred,
+                "emotion_spanish": EMOTION_TRANSLATIONS.get(pred, pred),
+                "emoji": EMOTION_EMOJIS.get(EMOTION_TRANSLATIONS.get(pred, pred), '😐'),
+                "confidence": round(confidence, 3)
+            })
+        
+        return jsonify({
+            "test_results": results,
+            "model_status": "working"
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-# Rutas
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-@app.route("/api/chatbot", methods=["POST"])
-def chatbot():
-    data = request.json
-    mensaje = data.get("mensaje", "")
-
-    # 1. Limpiar y tokenizar el mensaje (usa tu función clean_text)
-    mensaje_limpio = clean_text(mensaje)
-    seq = inp_tokenizer.texts_to_sequences([mensaje_limpio])
-    padded = tf.keras.preprocessing.sequence.pad_sequences(seq, maxlen=config["max_length_inp"], padding='post')
-
-    # 2. Generar respuesta
-    hidden = encoder.initialize_hidden_state()
-    enc_output, enc_hidden = encoder(padded, hidden)
-    dec_hidden = enc_hidden
-    dec_input = tf.expand_dims([targ_tokenizer.word_index['<sos>']], 0)
-
-    resultado = ""
-    for _ in range(config["max_length_targ"]):
-        predictions, dec_hidden, _ = decoder(dec_input, dec_hidden, enc_output)
-        predicted_id = tf.argmax(predictions[0]).numpy()
-        palabra = targ_tokenizer.index_word.get(predicted_id, '')
-        if palabra == '<eos>':
-            break
-        resultado += palabra + " "
-        dec_input = tf.expand_dims([predicted_id], 0)
-
+@app.route('/emotions-list', methods=['GET'])
+def get_emotions_list():
+    """
+    Retorna lista completa de emociones con emojis
+    """
+    emotions = []
+    for en, es in EMOTION_TRANSLATIONS.items():
+        emotions.append({
+            "english": en,
+            "spanish": es,
+            "emoji": EMOTION_EMOJIS.get(es, '😐')
+        })
+    
     return jsonify({
-        "respuesta": resultado.strip()  # Respuesta en inglés (o idioma original)
+        "emotions": emotions,
+        "total": len(emotions),
+        "supported_languages": "Cualquier idioma (traducción automática)"
     })
 
+@app.route('/health', methods=['GET'])
+def health_check():
+    """
+    Verificar estado completo de la API
+    """
+    try:
+        health_status = {
+            "status": "unknown",
+            "timestamp": datetime.now().isoformat(),
+            "components": {}
+        }
+        
+        # Verificar modelo
+        if modelo_emocion is not None:
+            health_status["components"]["model"] = "✅ loaded"
+        else:
+            health_status["components"]["model"] = "❌ not loaded"
+        
+        # Verificar vectorizador
+        if vectorizer is not None:
+            health_status["components"]["vectorizer"] = "✅ loaded"
+        else:
+            health_status["components"]["vectorizer"] = "❌ not loaded"
+        
+        # Verificar traductor
+        try:
+            test_translation = translator.translate("test", dest='es')
+            health_status["components"]["translator"] = "✅ working"
+        except:
+            health_status["components"]["translator"] = "❌ not working"
+        
+        # Prueba completa del pipeline
+        if modelo_emocion is not None and vectorizer is not None:
+            try:
+                test_vectorized = vectorizer.transform(["I am happy"])
+                test_pred = modelo_emocion.predict(test_vectorized)[0]
+                health_status["test_prediction"] = {
+                    "input": "I am happy",
+                    "emotion_english": test_pred,
+                    "emotion_spanish": EMOTION_TRANSLATIONS.get(test_pred, test_pred)
+                }
+                health_status["status"] = "healthy"
+            except Exception as e:
+                health_status["status"] = "error"
+                health_status["error"] = str(e)
+        else:
+            health_status["status"] = "unhealthy"
 
-@app.route("/api/emocion", methods=["POST"])
-def detectar_emocion():
-    data = request.json
-    texto = data.get("mensaje", "")
-    X = vectorizer.transform([texto])
-    emocion = modelo_emociones.predict(X)[0]
-    return jsonify({"emocion": emocion})
+        return jsonify(health_status)
 
-@app.route("/api/traducir", methods=["POST"])
-def traducir():
-    data = request.json
-    texto = data.get("texto", "")
-    idioma = data.get("idioma", "es")
-    traduccion = GoogleTranslator(source="auto", target=idioma).translate(texto)
-    return jsonify({"traduccion": traduccion})
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }), 500
+@app.route('/')
+def serve_index():
+    return send_from_directory('static', 'index.html')
 
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    return send_from_directory('static', filename)
+
+if __name__ == '__main__':
+    print("🎭 Detector de Emociones - API v2.0")
+    print("=" * 50)
+    print("📊 Modelo:", "✅ Cargado" if modelo_emocion is not None else "❌ Error")
+    print("🔤 Vectorizador:", "✅ Cargado" if vectorizer is not None else "❌ Error")
+    print("🌍 Traductor:", "✅ Disponible")
+    print("=" * 50)
+    print("🌐 Endpoints disponibles:")
+    print("   - GET  /              -> Información de la API")
+    print("   - POST /detect-emotion -> Detectar emoción (cualquier idioma)")
+    print("   - GET  /test-model     -> Probar modelo con ejemplos")
+    print("   - GET  /emotions-list  -> Lista completa de emociones")
+    print("   - GET  /health         -> Estado detallado del sistema")
+    print("=" * 50)
+    print("🚀 Servidor iniciando en: http://localhost:5000")
+    print("💡 Acepta texto en cualquier idioma!")
     
-# Iniciar servidor
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Usa el puerto que Render define
-    app.run(host="0.0.0.0", port=port, debug=True)
-
+    app.run(debug=True, host='0.0.0.0', port=5000)

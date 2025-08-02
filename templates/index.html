@@ -1,105 +1,267 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <title>AmicusIA - Inteligencia Artificial Emocional</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="AmicusIA - Tu compañero de inteligencia artificial para apoyo emocional y conversaciones significativas">
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmotiBot - Detector de Emociones</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <h2>AmicusIA 💬<br><span>Tu amigo emocional</span></h2>
-        <textarea id="mensaje" rows="5" placeholder="Cuéntame cómo te sientes... Comparte tus pensamientos, emociones o cualquier cosa que tengas en mente 💭"></textarea>
-        <button onclick="enviarMensaje()">Analizar Emociones ✨</button>
-        <div id="respuesta-box">
-            <strong>Respuesta de AmicusIA:</strong>
-            <p id="respuesta">¡Hola! Soy AmicusIA, tu compañero de inteligencia artificial especializado en comprensión emocional. Estoy aquí para escucharte, analizar tus emociones y ofrecerte apoyo personalizado. Comparte conmigo lo que sientes y pensemos juntos. 🤗</p>
-        </div>
-    </div>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <i class="fas fa-heart pulse"></i>
+                <span>EmotiBot</span>
+            </div>
+            <div class="nav-links">
+                <a href="#home" class="nav-link active">Inicio</a>
+                <a href="#features" class="nav-link">Características</a>
+                <a href="#detector" class="nav-link">Detector</a>
+                <a href="#contact" class="nav-link">Contacto</a>
+            </div>
+        </nav>
+    </header>
 
-    <script>
-        // Tu función original EXACTAMENTE como estaba - SIN CAMBIOS
-        async function enviarMensaje() {
-            const mensajeInput = document.getElementById("mensaje");
-            const respuestaOutput = document.getElementById("respuesta");
-            const button = document.querySelector("button");
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-background">
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+                <div class="shape shape-4"></div>
+            </div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">
+                    Descubre la <span class="gradient-text">Emoción</span> 
+                    de tu Mensaje
+                </h1>
+                <p class="hero-subtitle">
+                    Nuestro sistema utiliza inteligencia artificial para analizar 
+                    y comprender las emociones en tus mensajes de texto.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">72%</span>
+                        <span class="stat-label">Precisión</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">30+</span>
+                        <span class="stat-label">Emociones detectables</span>
+                    </div>
+                </div>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="scrollToSection('detector')">
+                        <i class="fas fa-brain"></i>
+                        Probar Detector
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detector Section -->
+    <section id="detector" class="chatbot-section">
+        <div class="container">
+            <div class="chatbot-header">
+                <h2 class="section-title">Detector de Emociones</h2>
+                <p class="section-subtitle">
+                    Escribe cualquier mensaje y descubre qué emoción transmite.
+                </p>
+            </div>
             
-            try {
-                // Validación básica
-                if (!mensajeInput.value.trim()) {
-                    respuestaOutput.innerText = "Por favor escribe un mensaje";
-                    respuestaOutput.className = "error";
-                    return;
-                }
+            <div class="detector-container">
+                <div class="detector-interface">
+                    <div class="detector-header">
+                        <div class="bot-avatar">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="bot-info">
+                            <h3>Detector de Emociones</h3>
+                            <span class="status online">Listo para analizar</span>
+                        </div>
+                        <div class="accuracy-badge">
+                            <span>72% precisión</span>
+                        </div>
+                    </div>
+                    
+                    <div class="emotion-display" id="emotionDisplay">
+                        <div class="emotion-result" id="emotionResult">
+                            <h4>Escribe algo para empezar</h4>
+                            <p>El detector analizará tu mensaje</p>
+                        </div>
+                    </div>
+                    
+                    <div class="emotion-input">
+                        <div class="input-container">
+                            <textarea 
+                                id="emotionTextarea" 
+                                placeholder="Escribe aquí tu mensaje para detectar la emoción..." 
+                                maxlength="500"
+                                rows="3"
+                            ></textarea>
+                            <div class="input-actions">
+                                <button class="clear-btn" id="clearBtn" title="Limpiar">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <button class="detect-btn" id="detectBtn">
+                                    <i class="fas fa-search"></i>
+                                    Detectar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="character-count">
+                            <span id="charCount">0</span>/500
+                        </div>
+                    </div>
+                </div>
                 
-                // Estado de carga
-                button.disabled = true;
-                respuestaOutput.innerText = "Pensando...";
-                respuestaOutput.className = "thinking";
+                <div class="detector-info">
+                    <div class="info-card">
+                        <h4><i class="fas fa-heart"></i> Emociones detectables</h4>
+                        <div class="emotions-list">
+                            <ul>
+                                <li>Alegre (joyful)</li>
+                                <li>Triste (sad)</li>
+                                <li>Enojado (angry)</li>
+                                <li>Ansioso (anxious)</li>
+                                <li>Asustado (afraid)</li>
+                                <li>Sorprendido (surprised)</li>
+                                <li>Confundido (confused)</li>
+                                <li>Disgustado (disgusted)</li>
+                                <li>Culpable (guilty)</li>
+                                <li>Orgulloso (proud)</li>
+                                <li>Esperanzado (hopeful)</li>
+                                <li>Decepcionado (disappointed)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <h4><i class="fas fa-chart-line"></i> Cómo funciona</h4>
+                        <ol class="how-it-works">
+                            <li>Escribe tu mensaje en el cuadro de texto</li>
+                            <li>El sistema analizará el contenido</li>
+                            <li>Obtendrás la emoción detectada</li>
+                            <li>Y el nivel de confianza del análisis</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="brand-logo">
+                        <i class="fas fa-heart"></i>
+                        <span>EmotiBot</span>
+                    </div>
+                    <p>Tecnología para el bienestar emocional</p>
+                </div>
                 
-                // 1. Detectar emoción
-                const emocionRes = await fetch('/api/emocion', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mensaje: mensajeInput.value })
-                });
-                
-                if (!emocionRes.ok) {
-                    throw new Error(`Error HTTP: ${emocionRes.status}`);
-                }
-                const emocionData = await emocionRes.json();
-                
-                const botchatRes = await fetch('/api/botchat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        mensaje: mensajeInput.value,
-                        emocion: emocionData.emocion || 'neutral'
-                    })
-                });
-                
-                if (!botchatRes.ok) {
-                    const errorDetails = await botchatRes.json().catch(() => ({}));
-                    throw new Error(errorDetails.error || `Error: ${botchatRes.status}`);
-                }
-                
-                const botchatData = await botchatRes.json();
-                respuestaOutput.innerText = botchatData.respuesta || "No recibí respuesta";
-                respuestaOutput.className = "";
-                
-            } catch (error) {
-                console.error("Error completo:", error);
-                respuestaOutput.innerText = `Error: ${error.message}`;
-                respuestaOutput.className = "error";
-            } finally {
-                button.disabled = false;
-                mensajeInput.value = "";
-            }
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Navegación</h4>
+                        <a href="#home">Inicio</a>
+                        <a href="#detector">Detector</a>
+                        <a href="#features">Características</a>
+                    </div>
+                    
+                    <div class="link-group">
+                        <h4>Legal</h4>
+                        <a href="#">Privacidad</a>
+                        <a href="#">Términos</a>
+                        <a href="#">Cookies</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 EmotiBot. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+<script>
+    // Función para detectar emociones
+    async function detectEmotion(text) {
+        if (!text.trim()) {
+            document.getElementById('emotionResult').innerHTML = `
+                <h4>Escribe algo para empezar</h4>
+                <p>El detector analizará tu mensaje</p>
+            `;
+            return;
         }
         
-        // Mejoras adicionales sin afectar tu funcionalidad
-        document.addEventListener('DOMContentLoaded', function() {
-            const mensajeInput = document.getElementById("mensaje");
+        try {
+            // Mostrar estado de carga
+            document.getElementById('emotionResult').innerHTML = '<h4>Analizando...</h4>';
             
-            // Auto-resize del textarea
-            mensajeInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+            const response = await fetch('http://localhost:5000/detect-emotion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: text })
             });
             
-            // Atajo de teclado - Enter para enviar
-            mensajeInput.addEventListener("keydown", function(e) {
-                if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey) {
-                    e.preventDefault();
-                    enviarMensaje();
-                }
-            });
+            if (!response.ok) {
+                throw new Error('Error en el servidor');
+            }
             
-            // Focus automático al cargar
-            mensajeInput.focus();
+            const data = await response.json();
+            
+            // Mostrar resultado
+            document.getElementById('emotionResult').innerHTML = `
+                <h4>Resultado del análisis:</h4>
+                <p><strong>Emoción:</strong> ${data.emotion}</p>
+                <p><strong>Confianza:</strong> ${Math.round(data.confidence * 100)}%</p>
+            `;
+            
+        } catch (error) {
+            document.getElementById('emotionResult').innerHTML = `
+                <h4>Error de conexión</h4>
+                <p>Por favor verifica que el servidor esté funcionando</p>
+                <p><small>${error.message}</small></p>
+            `;
+        }
+    }
+
+    // Configuración de eventos
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.getElementById('emotionTextarea');
+        const charCount = document.getElementById('charCount');
+        
+        // Contador de caracteres
+        textarea.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
         });
-    </script>
-</body>
-</html>
+        
+        // Botón de detección
+        document.getElementById('detectBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            detectEmotion(textarea.value.trim());
+        });
+        
+        // Botón de limpiar
+        document.getElementById('clearBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            textarea.value = '';
+            charCount.textContent = '0';
+            document.getElementById('emotionResult').innerHTML = `
+                <h4>Escribe algo para empezar</h4>
+                <p>El detector analizará tu mensaje</p>
+            `;
+        });
+    });
+</script>
