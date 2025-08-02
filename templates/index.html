@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EmotiBot - Detector de Emociones</title>
+    <title>Amicus IA - Detector de Emociones</title>
     <link rel="stylesheet" href="../static/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -14,7 +14,7 @@
         <nav class="nav">
             <div class="nav-brand">
                 <i class="fas fa-heart pulse"></i>
-                <span>EmotiBot</span>
+                <span>Amicus IA</span>
             </div>
             <div class="nav-links">
                 <a href="#home" class="nav-link active">Inicio</a>
@@ -60,6 +60,10 @@
                     <button class="btn btn-primary" onclick="scrollToSection('detector')">
                         <i class="fas fa-brain"></i>
                         Probar Detector
+                    </button>
+                    <button class="btn btn-secondary" onclick="toggleChat()">
+                        <i class="fas fa-comments"></i>
+                        Chatbot Amicus IA
                     </button>
                 </div>
             </div>
@@ -157,6 +161,11 @@
         </div>
     </section>
 
+    <!-- Chatbot Flotante -->
+    <div class="chatbot" onclick="toggleChat()" title="Chatbot Amicus IA - Asistente Emocional">
+        <i class="fas fa-comments chatbot-icon"></i>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -164,7 +173,7 @@
                 <div class="footer-brand">
                     <div class="brand-logo">
                         <i class="fas fa-heart"></i>
-                        <span>EmotiBot</span>
+                        <span>Amicus IA</span>
                     </div>
                     <p>Tecnología para el bienestar emocional</p>
                 </div>
@@ -187,81 +196,149 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2025 EmotiBot. Todos los derechos reservados.</p>
+                <p>&copy; 2025 Amicus IA. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
 
-<script>
-    // Función para detectar emociones
-    async function detectEmotion(text) {
-        if (!text.trim()) {
-            document.getElementById('emotionResult').innerHTML = `
-                <h4>Escribe algo para empezar</h4>
-                <p>El detector analizará tu mensaje</p>
-            `;
-            return;
-        }
-        
-        try {
-            // Mostrar estado de carga
-            document.getElementById('emotionResult').innerHTML = '<h4>Analizando...</h4>';
-            
-            const response = await fetch('http://localhost:5000/detect-emotion', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ text: text })
+    <!-- Scripts de Botpress -->
+    <script src="https://cdn.botpress.cloud/webchat/v3.2/inject.js" defer></script>
+    <script src="https://files.bpcontent.cloud/2025/08/01/21/20250801214217-RQJKML86.js" defer></script>
+
+    <script>
+        // Función para scroll suave
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
             });
-            
-            if (!response.ok) {
-                throw new Error('Error en el servidor');
+        }
+
+        // Función para detectar emociones
+        async function detectEmotion(text) {
+            if (!text.trim()) {
+                document.getElementById('emotionResult').innerHTML = `
+                    <h4>Escribe algo para empezar</h4>
+                    <p>El detector analizará tu mensaje</p>
+                `;
+                return;
             }
             
-            const data = await response.json();
-            
-            // Mostrar resultado
-            document.getElementById('emotionResult').innerHTML = `
-                <h4>Resultado del análisis:</h4>
-                <p><strong>Emoción:</strong> ${data.emotion}</p>
-                <p><strong>Confianza:</strong> ${Math.round(data.confidence * 100)}%</p>
-            `;
-            
-        } catch (error) {
-            document.getElementById('emotionResult').innerHTML = `
-                <h4>Error de conexión</h4>
-                <p>Por favor verifica que el servidor esté funcionando</p>
-                <p><small>${error.message}</small></p>
-            `;
+            try {
+                // Mostrar estado de carga
+                document.getElementById('emotionResult').innerHTML = '<h4>Analizando...</h4>';
+                
+                const response = await fetch('http://localhost:5000/detect-emotion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error en el servidor');
+                }
+                
+                const data = await response.json();
+                
+                // Mostrar resultado
+                document.getElementById('emotionResult').innerHTML = `
+                    <h4>Resultado del análisis:</h4>
+                    <p><strong>Emoción:</strong> ${data.emotion} ${data.emoji || ''}</p>
+                    <p><strong>Confianza:</strong> ${Math.round(data.confidence * 100)}%</p>
+                `;
+                
+            } catch (error) {
+                document.getElementById('emotionResult').innerHTML = `
+                    <h4>Error de conexión</h4>
+                    <p>Por favor verifica que el servidor esté funcionando</p>
+                    <p><small>${error.message}</small></p>
+                `;
+            }
         }
-    }
 
-    // Configuración de eventos
-    document.addEventListener('DOMContentLoaded', function() {
-        const textarea = document.getElementById('emotionTextarea');
-        const charCount = document.getElementById('charCount');
-        
-        // Contador de caracteres
-        textarea.addEventListener('input', function() {
-            charCount.textContent = this.value.length;
+        // Configuración de eventos del detector
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('emotionTextarea');
+            const charCount = document.getElementById('charCount');
+            
+            // Contador de caracteres
+            textarea.addEventListener('input', function() {
+                charCount.textContent = this.value.length;
+            });
+            
+            // Botón de detección
+            document.getElementById('detectBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                detectEmotion(textarea.value.trim());
+            });
+            
+            // Botón de limpiar
+            document.getElementById('clearBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                textarea.value = '';
+                charCount.textContent = '0';
+                document.getElementById('emotionResult').innerHTML = `
+                    <h4>Escribe algo para empezar</h4>
+                    <p>El detector analizará tu mensaje</p>
+                `;
+            });
         });
-        
-        // Botón de detección
-        document.getElementById('detectBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            detectEmotion(textarea.value.trim());
+
+        // Inicialización del chatbot Amicus IA
+        window.addEventListener('load', function() {
+            if (window.botpressWebChat) {
+                window.botpressWebChat.init({
+                    host: 'https://cdn.botpress.cloud/webchat/v3.2/shareable.html?configUrl=https://files.bpcontent.cloud/2025/08/01/21/20250801214218-8J9YVTRC.json',
+                    botId: '70d07b3e-717e-4496-a774-26d4137b489b',
+                    container: '#botpress-chatbot-container',
+                    hideWidget: true,
+                    botName: 'Amicus IA'
+                });
+                console.log('✅ Chatbot Amicus IA inicializado correctamente');
+            } else {
+                console.error('❌ Error: Botpress WebChat no está disponible');
+            }
         });
-        
-        // Botón de limpiar
-        document.getElementById('clearBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            textarea.value = '';
-            charCount.textContent = '0';
-            document.getElementById('emotionResult').innerHTML = `
-                <h4>Escribe algo para empezar</h4>
-                <p>El detector analizará tu mensaje</p>
-            `;
+
+        // Función para abrir/cerrar el chat
+        function toggleChat() {
+            if (window.botpressWebChat) {
+                window.botpressWebChat.sendEvent({ 
+                    type: 'show' 
+                });
+                window.botpressWebChat.sendEvent({ 
+                    type: 'toggle' 
+                });
+            } else {
+                console.error('❌ Chatbot no disponible');
+                alert('El chatbot no está disponible en este momento. Por favor, intenta más tarde.');
+            }
+        }
+
+        // Navegación activa
+        document.addEventListener('scroll', function() {
+            const sections = ['home', 'features', 'detector', 'contact'];
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            let currentSection = '';
+            sections.forEach(section => {
+                const element = document.getElementById(section);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+                    if (rect.top <= 100 && rect.bottom >= 100) {
+                        currentSection = section;
+                    }
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === currentSection) {
+                    link.classList.add('active');
+                }
+            });
         });
-    });
-</script>
+    </script>
+</body>
+</html>
