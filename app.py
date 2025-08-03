@@ -63,6 +63,14 @@ EMOTION_TRANSLATIONS = {
     'trusting': 'confiado'
 }
 
+EMOTION_EMOJIS = {
+    'alegre': '😊', 'triste': '😢', 'enojado': '😠', 'emocionado': '🤩',
+    'ansioso': '😰', 'cariñoso': '❤️', 'confiado': '😎', 'decepcionado': '😞',
+    'esperanzado': '🌟', 'avergonzado': '😳', 'celoso': '😒', 'nostálgico': '📸',
+    'orgulloso': '🎖️', 'culpable': '😓', 'sorprendido': '😮'
+}
+
+
 
 def detect_language_and_translate(text):
     """
@@ -119,8 +127,14 @@ def detect_emotion():
         probabilities = modelo_emocion.predict_proba(text_vectorized)[0]
         confidence = float(np.max(probabilities))
 
+        # Traducir emoción y añadir emoji
+        emotion_spanish = EMOTION_TRANSLATIONS.get(emotion_pred, emotion_pred)
+        emoji = EMOTION_EMOJIS.get(emotion_spanish, '😐')
+        
         return jsonify({
             "emotion": emotion_pred,  # Devuelve la emoción en inglés directamente
+            "emotion_spanish": emotion_spanish,
+            "emoji": emoji,
             "confidence": round(confidence, 3)
         })
 
