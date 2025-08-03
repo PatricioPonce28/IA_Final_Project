@@ -121,7 +121,7 @@ def detect_emotion():
         if not text:
             return jsonify({"error": "El texto no puede estar vacío"}), 400
 
-        # Procesamiento directo (sin traducción)
+        # Vectorizar y predecir
         text_vectorized = vectorizer.transform([text])
         emotion_pred = modelo_emocion.predict(text_vectorized)[0]
         probabilities = modelo_emocion.predict_proba(text_vectorized)[0]
@@ -132,14 +132,17 @@ def detect_emotion():
         emoji = EMOTION_EMOJIS.get(emotion_spanish, '😐')
         
         return jsonify({
-            "emotion": emotion_pred,  # Devuelve la emoción en inglés directamente
+            "emotion": emotion_pred,
             "emotion_spanish": emotion_spanish,
             "emoji": emoji,
             "confidence": round(confidence, 3)
         })
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/test-model', methods=['GET'])
 def test_model():
