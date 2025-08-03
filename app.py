@@ -19,14 +19,14 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 translator = Translator()
 
 # Cargar modelo y vectorizador al iniciar la aplicación
-try:
-    modelo_emocion = joblib.load("modelo_emocional.pkl")
-    vectorizer = joblib.load("vectorizador_emocional.pkl")
-    logger.info("Modelo y vectorizador cargados exitosamente")
-except Exception as e:
-    logger.error(f"Error cargando modelo: {e}")
-    modelo_emocion = None
-    vectorizer = None
+#try:
+#    modelo_emocion = joblib.load("modelo_emocional.pkl")
+#    vectorizer = joblib.load("vectorizador_emocional.pkl")
+#    logger.info("Modelo y vectorizador cargados exitosamente")
+#except Exception as e:
+#    logger.error(f"Error cargando modelo: {e}")
+#    modelo_emocion = None
+#    vectorizer = None
 
 # Diccionario para traducir emociones al español
 EMOTION_TRANSLATIONS = {
