@@ -62,55 +62,9 @@ Uso
 Iniciar el Servidor API
 bashpython app.py
 
-La API estará disponible en [http://localhost:5000](https://ia-final-project.onrender.com) 
+La API estará disponible en http://localhost:5000](https://ia-final-project.onrender.com
 Ejecutar la Interfaz Web
 
-
-{
-  "message": "Me siento muy triste hoy"
-}
-Generación de Respuestas
-httpPOST /api/generate-response
-Content-Type: application/json
-
-{
-  "message": "Me siento muy triste hoy",
-  "emotion": "sadness",
-  "sentiment": "negative"
-}
-Métricas del Sistema
-httpGET /api/metrics
-Configuración
-httpPUT /api/configure
-Content-Type: application/json
-
-{
-  "confidence_threshold": 0.7,
-  "response_length": "medium"
-}
-Estructura del Proyecto
-amicusia/
-├── app.py                 # Aplicación principal
-├── requirements.txt       # Dependencias
-├── .env.example          # Variables de entorno
-├── README.md             # Este archivo
-├── models/               # Modelos entrenados
-│   ├── emotion_classifier.pkl
-│   └── response_generator.pkl
-├── src/                  # Código fuente
-│   ├── api/             # Endpoints de la API
-│   ├── models/          # Lógica de modelos
-│   ├── preprocessing/   # Limpieza de datos
-│   └── utils/           # Utilidades
-├── data/                # Datasets
-│   ├── raw/            # Datos originales
-│   └── processed/      # Datos procesados
-├── frontend/            # Interfaz web
-│   ├── index.html
-│   ├── css/
-│   └── js/
-├── tests/               # Pruebas unitarias
-├── scripts/             # Scripts de utilidad
-└── docs/                # Documentación
-
 Link de la presentacion. - https://www.canva.com/design/DAGubaYCKw4/fnSk9bMKb0ewrnEd_JIIjw/edit?utm_content=DAGubaYCKw4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton 
+<img width="340" height="492" alt="image" src="https://github.com/user-attachments/assets/48ea8ca8-5879-4339-8a08-811b708814ad" />
+
