@@ -1,170 +1,116 @@
-Link Canva. - https://www.canva.com/design/DAGubaYCKw4/fnSk9bMKb0ewrnEd_JIIjw/edit?utm_content=DAGubaYCKw4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton 
-📖 Descripción
-AmicusIA es una inteligencia artificial diseñada como amigo virtual que proporciona acompañamiento emocional a través del reconocimiento de sentimientos en mensajes de texto. Utilizando técnicas de procesamiento de lenguaje natural (NLP) y aprendizaje automático, el sistema identifica el estado emocional del usuario y genera respuestas empáticas personalizadas.
-✨ Características Principales
+AMICUSIA - Sistema de Chatbot Empático
+<img width="886" height="409" alt="image" src="https://github.com/user-attachments/assets/515082c8-74bb-48b4-8a18-88fdd80acbbe" />
+<img width="886" height="403" alt="image" src="https://github.com/user-attachments/assets/1f3081c0-4043-4e7b-8454-f7b6b7ef2696" />
+<img width="886" height="405" alt="image" src="https://github.com/user-attachments/assets/84f6cc73-60b2-4a98-a52c-f6ca6c62e3d4" />
+<img width="886" height="460" alt="image" src="https://github.com/user-attachments/assets/d971f288-8187-457b-b8ab-7fb147449e42" />
 
-🎯 Análisis Emocional en Tiempo Real: Clasificación de emociones con 85.3% de precisión
-💬 Conversación Empática: Respuestas contextualizadas según el estado emocional detectado
-🧠 Arquitectura Dual: Combina clasificación emocional y generación conversacional
-🌐 API REST: Interfaz para integración con aplicaciones web y móviles
-📊 Métricas en Tiempo Real: Visualización del rendimiento del modelo
+Descripción del Proyecto
+AMICUSIA es un sistema de chatbot inteligente diseñado para brindar respuestas empáticas basadas en el análisis emocional de los mensajes de los usuarios. Utiliza técnicas avanzadas de procesamiento de lenguaje natural (NLP) para detectar emociones específicas y generar respuestas contextualmente apropiadas que demuestran comprensión y empatía genuina.
+Características Principales
 
-🏗️ Arquitectura del Sistema
-Componentes:
+Análisis Emocional Avanzado: Detecta emociones específicas, no solo polaridad básica
+Respuestas Empáticas: Genera mensajes contextualmente apropiados según el estado emocional
+API REST Completa: Endpoints para análisis, generación y métricas
+Interfaz Intuitiva: Frontend amigable para interacción usuario-sistema
+Dashboard de Métricas: Monitoreo en tiempo real del rendimiento del sistema
+Procesamiento en Tiempo Real: Análisis y respuesta instantáneos
 
-Modelo de Clasificación Emocional: Regresión Logística con vectorización TF-IDF
-Modelo Conversacional: Arquitectura Encoder-Decoder con LSTM
-API Backend: Exposición de endpoints para análisis y conversación
-Frontend: Interfaz de usuario intuitiva para interacción
+Arquitectura del Sistema
+Capa de Datos
 
-📊 Rendimiento del Modelo
-ModeloAlgoritmoPrecisión/PérdidaDatasetClasificación EmocionalRegresión Logística85.3%Emotions69k.csv (69k+ registros)ConversacionalSeq2Seq LSTM0.0303 (pérdida final)dialogs.txt
-Progreso de Entrenamiento:
-Época  4: Pérdida 1.5570
-Época  8: Pérdida 1.3285
-Época 12: Pérdida 1.1333
-...
-Época 40: Pérdida 0.0303 ✅
-🚀 Instalación y Configuración
-Prerrequisitos
+Dataset Principal: Empathetic Dialogues (Facebook AI) - 25,000 conversaciones
+Preprocesamiento: Limpieza, tokenización y normalización de texto
 
-Python 3.8 o superior
-pip (gestor de paquetes de Python)
+Capa de Modelo
 
+Clasificación Emocional: Modelo de aprendizaje supervisado con NLP
+Análisis de Sentimientos: Determinación de polaridad emocional
+Generación de Respuestas: Sistema de creación de mensajes empáticos
+
+Capa de API
+
+Framework: Python con Flask/FastAPI
+Endpoints: Análisis, generación, métricas y configuración
+
+Capa de Presentación
+
+Frontend: Interfaz gráfica intuitiva
+Dashboard: Visualización de métricas y estadísticas
+
+<img width="914" height="565" alt="image" src="https://github.com/user-attachments/assets/36f49304-28df-469c-a3c4-e8d7c441848e" />
+
+Instalación
 1. Clonar el Repositorio
-bashgit clone https://github.com/Odaliz2105/ProyectoIA.git
-cd ProyectoIA
-2. Crear Entorno Virtual (Recomendado)
+bashgit clone https://github.com/usuario/amicusia.git
+cd amicusia
+
+3. Crear Entorno Virtual
 bashpython -m venv venv
-# Windows
-venv\Scripts\activate
-# Linux/Mac
-source venv/bin/activate
-3. Instalar Dependencias
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+
+5. Instalar Dependencias
 bashpip install -r requirements.txt
-Dependencias Principales:
-txtpandas>=1.3.0
-scikit-learn>=1.0.0
-tensorflow>=2.8.0
-transformers>=4.0.0
-flask>=2.0.0
-matplotlib>=3.5.0
-numpy>=1.21.0
-joblib>=1.1.0
-deep-translator>=1.8.0
-tqdm>=4.62.0
-4. Preparar Datasets
-Asegúrate de tener los siguientes archivos en el directorio del proyecto:
 
-Emotions69k.csv: Dataset de emociones
-dialogs.txt: Dataset conversacional
+7. Configurar Variables de Entorno
+bashcp .env.example .env
+# Editar .env con tus configuraciones
 
-🎮 Uso del Sistema
-Entrenamiento de Modelos
-1. Modelo de Clasificación Emocional
-pythonimport pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-
-# Cargar dataset
-df = pd.read_csv("Emotions69k.csv", sep=";", encoding="utf-8", 
-                 quotechar='"', on_bad_lines="skip")
-
-# Entrenar modelo
-vectorizer = TfidfVectorizer()
-X = vectorizer.fit_transform(df["Situation"])
-y = df["emotion"]
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-modelo_emocion = LogisticRegression(max_iter=1000)
-modelo_emocion.fit(X_train, y_train)
-2. Modelo Conversacional
-python# Entrenar modelo Seq2Seq (ver notebooks para implementación completa)
-python train_conversational_model.py
-Ejecutar la API
+5. Preparar Datos
+bashpython scripts/download_dataset.py
+python scripts/preprocess_data.py
+Uso
+Iniciar el Servidor API
 bashpython app.py
-La API estará disponible en: http://localhost:5000
-Endpoints Disponibles
-EndpointMétodoDescripción/analyzePOSTAnálisis de sentimiento de un mensaje/chatPOSTConversación completa con respuesta empática/metricsGETMétricas del modelo y estadísticas/healthGETEstado del sistema
-Ejemplo de Uso de la API
-pythonimport requests
 
-# Análisis emocional
-response = requests.post('http://localhost:5000/analyze', 
-                        json={'message': 'Me siento muy triste hoy'})
-print(response.json())
-# Output: {'emotion': 'sadness', 'confidence': 0.89}
+La API estará disponible en [http://localhost:5000](https://ia-final-project.onrender.com) 
+Ejecutar la Interfaz Web
 
-# Conversación
-response = requests.post('http://localhost:5000/chat', 
-                        json={'message': 'Hola, ¿cómo estás?'})
-print(response.json())
-# Output: {'response': 'Hola! Estoy bien, gracias por preguntar. ¿Cómo te sientes hoy?', 'emotion': 'neutral'}
 
-🧪 Pruebas
-Ejecutar Pruebas Unitarias
-bashpython -m pytest tests/
-Validar Modelos
-bashpython src/validate_models.py
-Ejemplo de Prueba Manual
-python# Probar clasificación emocional
-test_messages = [
-    "Me siento muy feliz hoy",
-    "Estoy triste y cansado",
-    "¡Qué sorpresa tan increíble!",
-    "Tengo miedo de lo que pueda pasar"
-]
+{
+  "message": "Me siento muy triste hoy"
+}
+Generación de Respuestas
+httpPOST /api/generate-response
+Content-Type: application/json
 
-for message in test_messages:
-    emotion = modelo_emocion.predict(vectorizer.transform([message]))[0]
-    print(f"Mensaje: {message}")
-    print(f"Emoción detectada: {emotion}\n")
-👥 Equipo de Desarrollo
-DesarrolladorRolContribucionesOdaliz BalsecaML EngineerDesarrollo del modelo de IA y análisis de datosPatricio PonceBackend DeveloperImplementación de la API y arquitectura backendAlisson ViracochaFrontend DeveloperDesarrollo de interfaz e integración del sistema
-📈 Métricas de Contribución
+{
+  "message": "Me siento muy triste hoy",
+  "emotion": "sadness",
+  "sentiment": "negative"
+}
+Métricas del Sistema
+httpGET /api/metrics
+Configuración
+httpPUT /api/configure
+Content-Type: application/json
 
-Total de commits: 45+
-Issues resueltos: 12
-Pull requests: 15
-Líneas de código: 2,500+
+{
+  "confidence_threshold": 0.7,
+  "response_length": "medium"
+}
+Estructura del Proyecto
+amicusia/
+├── app.py                 # Aplicación principal
+├── requirements.txt       # Dependencias
+├── .env.example          # Variables de entorno
+├── README.md             # Este archivo
+├── models/               # Modelos entrenados
+│   ├── emotion_classifier.pkl
+│   └── response_generator.pkl
+├── src/                  # Código fuente
+│   ├── api/             # Endpoints de la API
+│   ├── models/          # Lógica de modelos
+│   ├── preprocessing/   # Limpieza de datos
+│   └── utils/           # Utilidades
+├── data/                # Datasets
+│   ├── raw/            # Datos originales
+│   └── processed/      # Datos procesados
+├── frontend/            # Interfaz web
+│   ├── index.html
+│   ├── css/
+│   └── js/
+├── tests/               # Pruebas unitarias
+├── scripts/             # Scripts de utilidad
+└── docs/                # Documentación
 
-🛠️ Tecnologías Utilizadas
-Backend
-
-Python 3.8+: Lenguaje principal
-TensorFlow/Keras: Modelos de deep learning
-Scikit-learn: Machine learning tradicional
-Flask/FastAPI: API REST
-Pandas: Manipulación de datos
-
-Frontend
-
-HTML5/CSS3: Estructura y estilos
-JavaScript: Interactividad
-Bootstrap: Framework CSS
-
-Herramientas de Desarrollo
-
-Git/GitHub: Control de versiones
-Jupyter Notebooks: Experimentación
-Matplotlib: Visualización de datos
-
-🎯 Casos de Uso
-1. Apoyo Emocional Personal
-
-Usuarios que buscan compañía virtual
-Personas que necesitan una primera escucha empática
-Individuos en proceso de autoconocimiento emocional
-
-2. Integración en Aplicaciones
-
-Chatbots de atención al cliente con componente emocional
-Aplicaciones de salud mental y bienestar
-Plataformas educativas con soporte emocional
-
-3. Investigación y Desarrollo
-
-Estudios sobre análisis de sentimientos
-Desarrollo de sistemas conversacionales
-Investigación en IA empática
+Link de la presentacion. - https://www.canva.com/design/DAGubaYCKw4/fnSk9bMKb0ewrnEd_JIIjw/edit?utm_content=DAGubaYCKw4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton 
