@@ -68,3 +68,6 @@ Ejecutar la Interfaz Web
 Link de la presentacion. - https://www.canva.com/design/DAGubaYCKw4/fnSk9bMKb0ewrnEd_JIIjw/edit?utm_content=DAGubaYCKw4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton 
 <img width="340" height="492" alt="image" src="https://github.com/user-attachments/assets/48ea8ca8-5879-4339-8a08-811b708814ad" />
 
+Link del Video. - https://epnecuador-my.sharepoint.com/:v:/g/personal/odaliz_balseca_epn_edu_ec/ESOIdnUaPSdBtQNYOMBTrmUBRLRNhyq7sHggdaXAvmf2hg 
+
+Link del Informe. - https://epnecuador-my.sharepoint.com/:b:/g/personal/odaliz_balseca_epn_edu_ec/EaMen9hZJp9AjjPUv69ef4gBgEhIGcKYEqIoWk4m5P3c7A?e=wsvAao 
